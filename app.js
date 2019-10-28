@@ -112,7 +112,7 @@ app.get("/failed", (req, res) => {
   });
 });
 
-app.get("/threader", function(req, res) {
+app.get("/threader", (req, res) => {
   res.render("threader", {
     name: req.session.name,
     username: req.session.username,
@@ -120,4 +120,15 @@ app.get("/threader", function(req, res) {
   });
 });
 
+app.post("/collect", (req, res) => {
+  console.log(req);
+  res.redirect("/adjust");
+});
+
+app.get("/adjust", (req, res) => {
+  res.render("adjust", {
+    title: "adjust",
+    script: "adjust.js"
+  });
+});
 module.exports = { app, user };
