@@ -44,7 +44,8 @@ const getWords = num => {
 
 const getContentAndConstructThread = () => {
   // const content = document.querySelector("textarea").value;
-  const content = getWords(100);
+  const content =
+    "State affects behavior, behavior affects state. We know that objects have state and behavior, represented by instance variables and methods. But until now, we haven’t looked at how state and behavior are related. We already know that each instance of a clasess (each object of a particular type) can have its own unique values for its instance variables. Dog A can have a name Fido and a weight of 70 pounds. Dog B is Killer and weighs 9 pounds. And if the Dog class has a method makeNoise(), well, don’t you think a 70-pound dog barks a bit deeper than the little 9-pounder? (Assuming that annoying yippy sound can be considered a bark.) Fortunately, that’s the whole point of an object—it has behavior that acts on its state. In other words, methods use instance variable values. Like, if dog is less than 14 pounds, make yippy sound, else... or increase weight by 5. Let’s go change some state. Conversely, Flux suggests using a nidirectional data flow, as shown in figure 14.5. In this case, you have actions from views going through a dispatcher, which in turn calls the data store. (Flux is a replacement for MVC. This isn’t just new terminology.) The store is responsible for the data and the representation in the views. Views don’t modify the data but have actions that go through the dispatcher again.";
 
   //break content into words.
 
@@ -94,44 +95,50 @@ const T = new twit({
   access_token_secret: "TmLtq44mbOKougjb9reY3SPXdUkInxEeD3dj9RuoQIPmb"
 });
 
-let root_id = "";
-const storeRoot = data => {
-  root_id = data.id_str;
-  return;
-};
-
 function sendTweets() {
+  console.log(tweetArray);
   let i = 0;
-  function postTweet(tweet) {
+  function postTweets(tweetArray) {
+    console.log("Posting tweets");
     //root_id variable to store the _id of the first post. Other posts will be posted as replies to the first post.
-    T.post(
-      "statuses/update",
-      {
-        status: tweet
-      },
-      function(err, data, response) {
-        storeRoot(data);
-        console.log("Post Tweet");
-        return root_id;
-      }
-    );
+    let i = 0;
+    const length = tweetArray.length;
+    const post = (tweetArray, data_id) => {
+      T.post(
+        "statuses/update",
+        {
+          status: tweetArray.shift(),
+          in_reply_to_status_id: data_id
+        },
+        function(err, data, response) {
+          console.log("Posted tweet " + i);
+          const data_id = data.id_str;
+          i++;
+          if (i < length) {
+            post(tweetArray, data_id);
+          }
+        }
+      );
+    };
+    post(tweetArray, null);
   }
-  function postReply(tweet) {
-    console.log(root_id);
-    //root_id variable to store the _id of the first post. Other posts will be posted as replies to the first post.
-    T.post(
-      "statuses/update",
-      { status: tweet, in_reply_to_status_id_str: root_id },
-      function(err, data, response) {}
-    );
-  }
-  for (let i = 0; i < tweetArray.length; i++) {
-    if (i == 0) {
-      postTweet(tweetArray[i]);
-    } else {
-      postReply(tweetArray[i]);
-    }
-  }
+
+  postTweets(tweetArray);
+  // function postReply(tweet) {
+  //   //root_id variable to store the _id of the first post. Other posts will be posted as replies to the first post.
+  //   T.post(
+  //     "statuses/update",
+  //     { status: tweet, in_reply_to_status_id_str: root_id },
+  //     function(err, data, response) {}
+  //   );
+  // }
+  // for (let i = 0; i < tweetArray.length; i++) {
+  //   if (i == 0) {
+  //     postTweet(tweetArray[i]);
+  //   } else {
+  //     postReply(tweetArray[i]);
+  //   }
+  // }
 }
 
 // const threadify = () => {
